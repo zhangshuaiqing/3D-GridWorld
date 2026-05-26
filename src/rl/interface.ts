@@ -151,12 +151,14 @@ function createRLInterface(): RLAPI {
 
     setMode: (mode: ObservationMode) => {
       getEnv().observationMode = mode;
-      useStore.setState({ state: getEnv().getState() });
+      const cfg = { ...useStore.getState().config, observationMode: mode };
+      useStore.setState({ config: cfg, state: getEnv().getState() });
     },
 
     setViewRange: (n: number) => {
       getEnv().viewRange = Math.max(1, n);
-      useStore.setState({ state: getEnv().getState() });
+      const cfg = { ...useStore.getState().config, viewRange: Math.max(1, n) };
+      useStore.setState({ config: cfg, state: getEnv().getState() });
     },
 
     getConfig: () => useStore.getState().config,
