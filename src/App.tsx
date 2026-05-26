@@ -12,6 +12,7 @@ import ControlPanel from './panels/ControlPanel';
 import StatusPanel from './panels/StatusPanel';
 import LegendPanel from './panels/LegendPanel';
 import SettingsPanel from './panels/SettingsPanel';
+import ObservationPanel from './panels/ObservationPanel';
 import type { ObservationMode } from './types';
 
 function WebGLCheck() {
@@ -96,6 +97,7 @@ export default function App() {
 
       <ControlPanel />
       <StatusPanel />
+      <ObservationPanel />
       <LegendPanel />
       <SettingsPanel />
 
