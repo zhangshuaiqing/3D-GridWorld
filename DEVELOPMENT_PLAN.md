@@ -75,6 +75,8 @@
 - [x] 动态障碍物（bounce/random + 独立控制）
 - [x] RL 接口 window.__gridworld（完整 API + 事件系统）
 - [x] 局域网访问（vite --host）
+- [x] WebSocket Python 训练接口
+- [x] Vitest 单元测试（39项全部通过）
 
 ## 待实现功能
 

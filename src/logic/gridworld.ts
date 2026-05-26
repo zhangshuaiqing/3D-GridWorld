@@ -134,6 +134,10 @@ export class GridWorld3D {
     // Init dynamic obstacles
     this._initDynamicObstacles();
 
+    // Mark agent and goal in grid
+    this.grid[this.agentPos[0]][this.agentPos[1]][this.agentPos[2]] = CellType.AGENT;
+    this.grid[this.goalPos[0]][this.goalPos[1]][this.goalPos[2]] = CellType.GOAL;
+
     // Init visited
     this.visitedMask = createGrid(this.width, this.height, this.depth, 0).map(
       xy => xy.map(yz => yz.map(() => false))
@@ -266,6 +270,7 @@ export class GridWorld3D {
       if (config.viewRange !== undefined) this.viewRange = Math.max(1, config.viewRange);
       if (config.numDynamicObstacles !== undefined) this.numDynamicObstacles = config.numDynamicObstacles;
       if (config.dynamicObstacleSpeed !== undefined) this.dynamicObstacleSpeed = config.dynamicObstacleSpeed;
+      if (config.seed !== undefined) this.rng = seededRng(config.seed);
       this.totalCells = this.width * this.height * this.depth;
       this.maxSteps = this.totalCells * 2;
     }
