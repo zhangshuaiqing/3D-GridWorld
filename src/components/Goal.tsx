@@ -1,38 +1,41 @@
+import { useRef, useEffect } from 'react';
+import * as THREE from 'three';
 import { useStore } from '../store';
 import { CellType } from '../types';
 import { CELL_COLORS } from '../constants';
-import { useRef, useEffect } from 'react';
-import * as THREE from 'three';
 
 export default function Goal() {
-  const goalPos = useStore((s) => s.state.goalPos);
+  const pos = useStore((s) => s.state.goalPos);
   const ref = useRef<THREE.Group>(null);
 
   useEffect(() => {
     if (ref.current) {
-      ref.current.position.set(goalPos[1], 0.3, goalPos[0]);
+      ref.current.position.set(pos[0], pos[1] + 0.5, pos[2]);
     }
-  }, [goalPos]);
+  }, [pos]);
 
   return (
     <group ref={ref}>
+      {/* Rotating ring */}
       <mesh rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.25, 0.45, 32]} />
+        <ringGeometry args={[0.2, 0.4, 24]} />
         <meshBasicMaterial color={CELL_COLORS[CellType.GOAL]} side={THREE.DoubleSide} />
       </mesh>
+      {/* Glow pillar */}
       <mesh position={[0, 0.4, 0]}>
-        <cylinderGeometry args={[0.08, 0.12, 0.8, 16]} />
+        <cylinderGeometry args={[0.06, 0.1, 0.8, 12]} />
         <meshStandardMaterial
           color={CELL_COLORS[CellType.GOAL]}
           emissive={CELL_COLORS[CellType.GOAL]}
-          emissiveIntensity={0.5}
+          emissiveIntensity={0.6}
           transparent
-          opacity={0.7}
+          opacity={0.8}
         />
       </mesh>
+      {/* Ground glow */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
-        <circleGeometry args={[0.5, 32]} />
-        <meshBasicMaterial color={CELL_COLORS[CellType.GOAL]} transparent opacity={0.15} />
+        <circleGeometry args={[0.5, 24]} />
+        <meshBasicMaterial color={CELL_COLORS[CellType.GOAL]} transparent opacity={0.2} />
       </mesh>
     </group>
   );

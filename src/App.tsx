@@ -17,13 +17,11 @@ import type { ObservationMode } from './types';
 
 function WebGLCheck() {
   const [supported, setSupported] = useState<boolean | null>(null);
-
   useEffect(() => {
     const canvas = document.createElement('canvas');
     const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
     setSupported(!!gl);
   }, []);
-
   if (supported === false) {
     return (
       <div className="webgl-fallback">
@@ -33,7 +31,6 @@ function WebGLCheck() {
       </div>
     );
   }
-
   return null;
 }
 
@@ -41,19 +38,11 @@ export default function App() {
   const config = useStore((s) => s.config);
 
   useControls('GridWorld', {
-    size: {
-      value: config.size, min: 4, max: 20, step: 1,
-      onChange: (v: number) => { useStore.getState().setSize(v); },
-    },
-    obstacles: {
-      value: config.obstacleRatio, min: 0, max: 0.5, step: 0.05,
-      onChange: (v: number) => { useStore.getState().setObstacleRatio(v); },
-    },
-    mode: {
-      value: config.observationMode,
-      options: ['full', 'local', 'fog_of_war'] as ObservationMode[],
-      onChange: (v: ObservationMode) => { useStore.getState().setObservationMode(v); },
-    },
+    width: { value: config.width, min: 3, max: 10, step: 1, onChange: (v: number) => useStore.getState().setWidth(v) },
+    height: { value: config.height, min: 2, max: 6, step: 1, onChange: (v: number) => useStore.getState().setHeight(v) },
+    depth: { value: config.depth, min: 3, max: 10, step: 1, onChange: (v: number) => useStore.getState().setDepth(v) },
+    obstacles: { value: config.obstacleRatio, min: 0, max: 0.4, step: 0.05, onChange: (v: number) => useStore.getState().setObstacleRatio(v) },
+    mode: { value: config.observationMode, options: ['full', 'fog_of_war'] as ObservationMode[], onChange: (v: ObservationMode) => useStore.getState().setObservationMode(v) },
   });
 
   return (
@@ -61,26 +50,15 @@ export default function App() {
       <WebGLCheck />
 
       <Canvas
-        camera={{ position: [10, 10, 10], fov: 50 }}
-        gl={{
-          antialias: true,
-          powerPreference: "default",
-          failIfMajorPerformanceCaveat: false,
-          premultipliedAlpha: false,
-          alpha: false,
-        }}
+        camera={{ position: [8, 8, 8], fov: 50 }}
+        gl={{ antialias: true, powerPreference: 'default', failIfMajorPerformanceCaveat: false, alpha: false }}
         onCreated={({ gl }) => { gl.setClearColor('#0d1117'); }}
         style={{ width: '100%', height: '100%' }}
-        fallback={
-          <div className="webgl-fallback">
-            <h2>WebGL 初始化失败</h2>
-            <p>无法创建 3D 渲染上下文。</p>
-          </div>
-        }
+        fallback={<div className="webgl-fallback"><h2>WebGL 初始化失败</h2></div>}
       >
-        <ambientLight intensity={0.6} />
-        <directionalLight position={[10, 15, 10]} intensity={1.2} />
-        <directionalLight position={[-5, 10, -5]} intensity={0.3} />
+        <ambientLight intensity={0.5} />
+        <directionalLight position={[10, 15, 10]} intensity={1} />
+        <directionalLight position={[-5, 8, -5]} intensity={0.3} />
         <Grid />
         <Obstacles />
         <Agent />
@@ -90,7 +68,7 @@ export default function App() {
           enableDamping
           dampingFactor={0.1}
           minDistance={3}
-          maxDistance={30}
+          maxDistance={25}
           maxPolarAngle={Math.PI / 2.1}
         />
       </Canvas>

@@ -3,27 +3,23 @@
 import { create } from 'zustand';
 import type { GridWorldConfig, ObservationMode, GridWorldState } from './types';
 import { DEFAULT_CONFIG } from './types';
-import { GridWorld } from './logic/gridworld';
+import { GridWorld3D } from './logic/gridworld';
 
 interface AppState {
-  // Config
   config: GridWorldConfig;
-  setSize: (n: number) => void;
+  setWidth: (n: number) => void;
+  setHeight: (n: number) => void;
+  setDepth: (n: number) => void;
   setObstacleRatio: (n: number) => void;
   setRandomStartGoal: (b: boolean) => void;
   setObservationMode: (m: ObservationMode) => void;
   setViewRange: (n: number) => void;
-  setNumDynamicObstacles: (n: number) => void;
 
-  // Environment
-  env: GridWorld;
+  env: GridWorld3D;
   state: GridWorldState;
-
-  // Actions
-  step: (action: 0 | 1 | 2 | 3) => void;
+  step: (action: 0 | 1 | 2 | 3 | 4 | 5) => void;
   reset: () => void;
 
-  // UI
   autoRun: boolean;
   autoSpeed: number;
   setAutoRun: (b: boolean) => void;
@@ -32,12 +28,13 @@ interface AppState {
   setMessage: (msg: string) => void;
 }
 
-const env = new GridWorld(DEFAULT_CONFIG);
+const env = new GridWorld3D(DEFAULT_CONFIG);
 
 export const useStore = create<AppState>((set, get) => ({
-  // Config
   config: { ...DEFAULT_CONFIG },
-  setSize: (n) => set((s) => ({ config: { ...s.config, size: n } })),
+  setWidth: (n) => set((s) => ({ config: { ...s.config, width: n } })),
+  setHeight: (n) => set((s) => ({ config: { ...s.config, height: n } })),
+  setDepth: (n) => set((s) => ({ config: { ...s.config, depth: n } })),
   setObstacleRatio: (n) => set((s) => ({ config: { ...s.config, obstacleRatio: n } })),
   setRandomStartGoal: (b) => set((s) => ({ config: { ...s.config, randomStartGoal: b } })),
   setObservationMode: (m) => {
@@ -50,31 +47,20 @@ export const useStore = create<AppState>((set, get) => ({
     env.viewRange = n;
     set({ state: env.getState() });
   },
-  setNumDynamicObstacles: (n) => set((s) => ({ config: { ...s.config, numDynamicObstacles: n } })),
 
-  // Environment
   env,
   state: env.getState(),
 
-  // Actions
   step: (action) => {
     const s = env.step(action);
     set({ state: s });
   },
   reset: () => {
     const cfg = get().config;
-    const s = env.reset({
-      size: cfg.size,
-      obstacleRatio: cfg.obstacleRatio,
-      randomStartGoal: cfg.randomStartGoal,
-      observationMode: cfg.observationMode,
-      viewRange: cfg.viewRange,
-      numDynamicObstacles: cfg.numDynamicObstacles,
-    });
+    const s = env.reset(cfg);
     set({ state: s, message: '' });
   },
 
-  // UI
   autoRun: false,
   autoSpeed: 500,
   setAutoRun: (b) => set({ autoRun: b }),

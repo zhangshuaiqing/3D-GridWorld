@@ -1,9 +1,15 @@
 import { useEffect, useRef } from 'react';
 import { useStore } from '../store';
 
-const ACTION_KEYS: Record<string, 0 | 1 | 2 | 3> = {
-  ArrowUp: 0, ArrowDown: 1, ArrowLeft: 2, ArrowRight: 3,
-  w: 0, W: 0, s: 1, S: 1, a: 2, A: 2, d: 3, D: 3,
+// 6 actions: 0=+x, 1=-x, 2=+y, 3=-y, 4=+z, 5=-z
+const KEY_MAP: Record<string, 0 | 1 | 2 | 3 | 4 | 5> = {
+  ArrowRight: 0, d: 0, D: 0,
+  ArrowLeft: 1, a: 1, A: 1,
+  ArrowUp: 4, w: 4, W: 4,
+  ArrowDown: 5, s: 5, S: 5,
+  // Up/Down height: q=up, e=down
+  q: 2, Q: 2, e: 3, E: 3,
+  // Shift/Ctrl for height also works
 };
 
 export default function ControlPanel() {
@@ -15,14 +21,13 @@ export default function ControlPanel() {
   const message = useStore((s) => s.message);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Keyboard handler
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      const action = ACTION_KEYS[e.key];
+      const action = KEY_MAP[e.key];
       if (action !== undefined) {
         e.preventDefault();
-        const s = useStore.getState();
-        if (!s.state.done) s.step(action);
+        const st = useStore.getState();
+        if (!st.state.done) st.step(action);
       }
       if (e.key === ' ') {
         e.preventDefault();
@@ -37,13 +42,13 @@ export default function ControlPanel() {
     return () => window.removeEventListener('keydown', handler);
   }, []);
 
-  // Auto run timer
   useEffect(() => {
     if (autoRun && !state.done) {
       timerRef.current = setInterval(() => {
         const st = useStore.getState();
         if (st.state.done) { st.setAutoRun(false); return; }
-        st.step(0); // Just go up as a simple demo
+        // Simple: move forward (+z)
+        st.step(4);
       }, autoSpeed);
       return () => { if (timerRef.current) clearInterval(timerRef.current); };
     } else {
@@ -51,57 +56,55 @@ export default function ControlPanel() {
     }
   }, [autoRun, state.done, autoSpeed]);
 
-  const btnStyle: React.CSSProperties = {
-    padding: '6px 14px',
-    border: '1px solid #30363d',
-    borderRadius: 6,
-    background: '#21262d',
-    color: '#c9d1d9',
-    cursor: 'pointer',
-    fontSize: 12,
-    fontWeight: 600,
+  const btn: React.CSSProperties = {
+    padding: '5px 10px', border: '1px solid #30363d', borderRadius: 6,
+    background: '#21262d', color: '#c9d1d9', cursor: 'pointer',
+    fontSize: 11, fontWeight: 600, fontFamily: 'monospace',
   };
 
-  const doStep = (action: 0 | 1 | 2 | 3) => {
+  const doStep = (a: 0 | 1 | 2 | 3 | 4 | 5) => {
     const st = useStore.getState();
-    if (!st.state.done) st.step(action);
+    if (!st.state.done) st.step(a);
   };
 
   return (
     <>
       <div style={{
-        position: 'absolute', bottom: 24, left: '50%',
+        position: 'absolute', bottom: 20, left: '50%',
         transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column',
-        alignItems: 'center', gap: 8, zIndex: 10,
+        alignItems: 'center', gap: 6, zIndex: 10,
       }}>
-        <div style={{ display: 'flex', gap: 6 }}>
-          <button style={btnStyle} onClick={() => doStep(0)}>↑ Step</button>
-          <button style={btnStyle} onClick={() => doStep(2)}>← Step</button>
-          <button style={btnStyle} onClick={() => doStep(3)}>→ Step</button>
-          <button style={btnStyle} onClick={() => doStep(1)}>↓ Step</button>
-        </div>
-        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-          <button style={{ ...btnStyle }} onClick={() => useStore.getState().reset()}>
+        <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+          <span style={{ color: '#484f58', fontSize: 10 }}>Q↑</span>
+          <button style={btn} onClick={() => doStep(2)}>▲ Up</button>
+          <span style={{ color: '#484f58', fontSize: 10 }}>E↓</span>
+          <button style={btn} onClick={() => doStep(3)}>▼ Down</button>
+          <span style={{ color: '#30363d' }}>|</span>
+          <button style={{ ...btn, background: '#238636', color: '#fff', marginLeft: 4 }}
+            onClick={() => useStore.getState().reset()}>
             🔄 Reset
           </button>
-          <button
-            style={{ ...btnStyle, background: autoRun ? '#f85149' : '#238636', color: '#fff' }}
-            onClick={() => setAutoRun(!autoRun)}
-          >
-            {autoRun ? '⏹ Stop' : '▶ Auto Run'}
+          <button style={{ ...btn, background: autoRun ? '#f85149' : '#238636', color: '#fff' }}
+            onClick={() => setAutoRun(!autoRun)}>
+            {autoRun ? '⏹ Stop' : '▶ Auto'}
           </button>
-          <span style={{ color: '#8b949e', fontSize: 11 }}>Speed:</span>
           <input type="range" min={100} max={1000} step={50} value={autoSpeed}
-            onChange={(e) => setAutoSpeed(Number(e.target.value))} style={{ width: 60 }} />
-          <span style={{ color: '#8b949e', fontSize: 11, minWidth: 30 }}>{autoSpeed}ms</span>
+            onChange={(e) => setAutoSpeed(Number(e.target.value))}
+            style={{ width: 50 }} />
         </div>
-        {message && <div style={{ color: '#d29922', fontSize: 14, fontWeight: 600 }}>{message}</div>}
+        <div style={{ display: 'flex', gap: 4 }}>
+          <button style={btn} onClick={() => doStep(1)}>← -X</button>
+          <button style={btn} onClick={() => doStep(4)}>↑ +Z</button>
+          <button style={btn} onClick={() => doStep(0)}>→ +X</button>
+          <button style={btn} onClick={() => doStep(5)}>↓ -Z</button>
+        </div>
+        {message && <div style={{ color: '#d29922', fontSize: 13, fontWeight: 600 }}>{message}</div>}
       </div>
       <div style={{
         position: 'absolute', bottom: 100, left: '50%', transform: 'translateX(-50%)',
-        color: '#484f58', fontSize: 11, zIndex: 10, textAlign: 'center', pointerEvents: 'none',
+        color: '#484f58', fontSize: 10, zIndex: 10, textAlign: 'center', pointerEvents: 'none',
       }}>
-        Arrow keys / WASD to move · Space to toggle auto · R to reset
+        WASD: XZ plane · Q/E: up/down · Space: auto · R: reset
       </div>
     </>
   );

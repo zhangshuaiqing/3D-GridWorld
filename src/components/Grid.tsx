@@ -2,35 +2,71 @@ import { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 import { useStore } from '../store';
 
-const GRID_Y = 0;
-
 export default function Grid() {
-  const size = useStore((s) => s.config.size);
-  const gridRef = useRef<THREE.LineSegments>(null);
+  const w = useStore((s) => s.state.width);
+  const h = useStore((s) => s.state.height);
+  const d = useStore((s) => s.state.depth);
+
+  const linesRef = useRef<THREE.LineSegments>(null);
 
   useEffect(() => {
-    if (!gridRef.current) return;
+    if (!linesRef.current) return;
     const pts: number[] = [];
-    for (let r = 0; r <= size; r++) {
-      pts.push(-0.5, GRID_Y, r - 0.5, size - 0.5, GRID_Y, r - 0.5);
+    for (let r = 0; r <= d; r++) {
+      pts.push(-0.5, 0, r - 0.5, w - 0.5, 0, r - 0.5);
     }
-    for (let c = 0; c <= size; c++) {
-      pts.push(c - 0.5, GRID_Y, -0.5, c - 0.5, GRID_Y, size - 0.5);
+    for (let c = 0; c <= w; c++) {
+      pts.push(c - 0.5, 0, -0.5, c - 0.5, 0, d - 0.5);
     }
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
-    gridRef.current.geometry = geo;
-  }, [size]);
+    linesRef.current.geometry = geo;
+  }, [w, d]);
+
+  // Corner pillars
+  const pillars: [number, number, number][] = [];
+  for (let x = 0; x <= w; x++) {
+    for (let z = 0; z <= d; z++) {
+      if (x === 0 || x === w || z === 0 || z === d) {
+        pillars.push([x - 0.5, 0.5, z - 0.5]);
+      }
+    }
+  }
 
   return (
     <group>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[(size - 1) / 2, GRID_Y - 0.01, (size - 1) / 2]}>
-        <planeGeometry args={[size, size]} />
+      {/* Ground plane */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[(w - 1) / 2, -0.01, (d - 1) / 2]}>
+        <planeGeometry args={[w, d]} />
         <meshStandardMaterial color="#161b22" />
       </mesh>
-      <lineSegments ref={gridRef}>
+
+      {/* Ground grid lines */}
+      <lineSegments ref={linesRef}>
         <lineBasicMaterial color="#30363d" transparent opacity={0.5} />
       </lineSegments>
+
+      {/* Corner pillars */}
+      {pillars.map((pos, i) => (
+        <mesh key={i} position={pos}>
+          <cylinderGeometry args={[0.03, 0.03, h, 4]} />
+          <meshBasicMaterial color="#30363d" transparent opacity={0.3} />
+        </mesh>
+      ))}
+
+      {/* Height level indicators */}
+      {Array.from({ length: h + 1 }, (_, y) => (
+        <mesh key={y} rotation={[-Math.PI / 2, 0, 0]} position={[(w - 1) / 2, y, (d - 1) / 2]}>
+          <planeGeometry args={[w, d]} />
+          <meshBasicMaterial
+            color="#30363d"
+            transparent
+            opacity={0.05}
+            depthWrite={false}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      ))}
     </group>
   );
 }

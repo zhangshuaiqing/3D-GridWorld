@@ -7,22 +7,25 @@ export const CELL_COLORS: Record<number, string> = {
   [CellType.OBSTACLE]: '#586069',
   [CellType.AGENT]: '#58a6ff',
   [CellType.GOAL]: '#d29922',
-  [CellType.DYNAMIC_OBSTACLE]: '#f85149',
 };
 
-export const ACTIONS: Record<string, [number, number]> = {
-  up: [-1, 0],
-  down: [1, 0],
-  left: [0, -1],
-  right: [0, 1],
-};
-
-export const ACTION_KEYS: Array<[number, string, string]> = [
-  [0, 'up', 'ArrowUp'],
-  [1, 'down', 'ArrowDown'],
-  [2, 'left', 'ArrowLeft'],
-  [3, 'right', 'ArrowRight'],
+// 6 actions in 3D space: +x, -x, +y, -y, +z, -z
+export const ACTION_VECTORS: [number, number, number][] = [
+  [1, 0, 0],   // 0: +x
+  [-1, 0, 0],  // 1: -x
+  [0, 1, 0],   // 2: +y (up)
+  [0, -1, 0],  // 3: -y (down)
+  [0, 0, 1],   // 4: +z
+  [0, 0, -1],  // 5: -z
 ];
 
+export const ACTION_LABELS: Record<number, string> = {
+  0: '+x',
+  1: '-x',
+  2: '+y',
+  3: '-y',
+  4: '+z',
+  5: '-z',
+};
+
 export const FOG_COLOR = '#0d1117';
-export const GRID_LINE_COLOR = '#30363d';

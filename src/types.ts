@@ -5,43 +5,51 @@ export const CellType = {
   OBSTACLE: 1,
   AGENT: 2,
   GOAL: 3,
-  PATH: 4,
-  DYNAMIC_OBSTACLE: 5,
 } as const;
 
 export type CellType = (typeof CellType)[keyof typeof CellType];
 
-export type Action = 0 | 1 | 2 | 3; // 0=up, 1=down, 2=left, 3=right
-export type Pos = [number, number];
-export type ObservationMode = 'full' | 'local' | 'fog_of_war';
+// 3D position: [x, y, z] where y is height
+export type Pos3 = [number, number, number];
+
+// 6-direction actions: 0=+x, 1=-x, 2=+y, 3=-y, 4=+z, 5=-z
+export type Action = 0 | 1 | 2 | 3 | 4 | 5;
+
+export type ObservationMode = 'full' | 'fog_of_war';
 
 export interface GridWorldState {
-  grid: number[][];
-  agentPos: Pos;
-  goalPos: Pos;
+  // 3D grid: grid[x][y][z] = CellType
+  grid: number[][][];
+  width: number;
+  height: number;
+  depth: number;
+  agentPos: Pos3;
+  goalPos: Pos3;
   stepCount: number;
   done: boolean;
   reward: number;
-  visited: boolean[][];
+  visited: boolean[][][];
 }
 
 export interface GridWorldConfig {
-  size: number;
+  width: number;   // x dimension
+  height: number;  // y dimension (vertical)
+  depth: number;   // z dimension
   obstacleRatio: number;
   seed?: number;
   randomStartGoal: boolean;
   observationMode: ObservationMode;
   viewRange: number;
   numDynamicObstacles: number;
-  dynamicObstacleSpeed: number;
 }
 
 export const DEFAULT_CONFIG: GridWorldConfig = {
-  size: 8,
-  obstacleRatio: 0.2,
+  width: 6,
+  height: 4,
+  depth: 6,
+  obstacleRatio: 0.15,
   observationMode: 'full',
-  viewRange: 1,
+  viewRange: 2,
   randomStartGoal: false,
   numDynamicObstacles: 0,
-  dynamicObstacleSpeed: 1,
 };

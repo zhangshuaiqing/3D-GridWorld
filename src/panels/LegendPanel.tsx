@@ -6,7 +6,7 @@ const ITEMS: Array<{ label: string; color: string; cellType: CellType }> = [
   { label: 'Obstacle', color: CELL_COLORS[CellType.OBSTACLE], cellType: CellType.OBSTACLE },
   { label: 'Agent', color: CELL_COLORS[CellType.AGENT], cellType: CellType.AGENT },
   { label: 'Goal', color: CELL_COLORS[CellType.GOAL], cellType: CellType.GOAL },
-  { label: 'Dynamic Obstacle', color: CELL_COLORS[CellType.DYNAMIC_OBSTACLE], cellType: CellType.DYNAMIC_OBSTACLE },
+  { label: 'Dynamic Obstacle', color: '#f85149', cellType: 5 as CellType },
 ];
 
 export default function LegendPanel() {
