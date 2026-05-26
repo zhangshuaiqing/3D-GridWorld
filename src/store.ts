@@ -30,6 +30,7 @@ interface AppState {
   clearAll: () => void;
   randomFill: () => void;
   applyMap: () => void;  // apply edited map to env and reset
+  importMap: (data: string) => void;
 
   autoRun: boolean;
   autoSpeed: number;
@@ -216,5 +217,80 @@ export const useStore = create<AppState>((set, get) => ({
   initEditGrid: () => {
     const eg = cloneGrid(env.grid);
     set({ editGrid: eg });
+  },
+
+  // Import map from JSON
+  importMap: (data: string) => {
+    try {
+      const map = JSON.parse(data);
+      const w = map.width || 6;
+      const h = map.height || 4;
+      const d = map.depth || 6;
+
+      // Validate
+      if (w < 2 || h < 1 || d < 2) {
+        set({ message: 'Invalid map dimensions' });
+        return;
+      }
+
+      // Create new grid
+      const newGrid: number[][][] = [];
+      for (let x = 0; x < w; x++) {
+        const yz: number[][] = [];
+        for (let y = 0; y < h; y++) yz.push(Array(d).fill(CellType.EMPTY));
+        newGrid.push(yz);
+      }
+
+      // Place obstacles
+      if (map.obstacles && Array.isArray(map.obstacles)) {
+        for (const obs of map.obstacles) {
+          if (obs.length === 3) {
+            const [ox, oy, oz] = obs;
+            if (ox >= 0 && ox < w && oy >= 0 && oy < h && oz >= 0 && oz < d) {
+              newGrid[ox][oy][oz] = CellType.OBSTACLE;
+            }
+          }
+        }
+      }
+
+      // Set agent and goal positions
+      const agentPos: Pos3 = map.agentPos && map.agentPos.length === 3
+        ? [Math.min(map.agentPos[0], w - 1), Math.min(map.agentPos[1], h - 1), Math.min(map.agentPos[2], d - 1)]
+        : [0, 0, 0];
+
+      const goalPos: Pos3 = map.goalPos && map.goalPos.length === 3
+        ? [Math.min(map.goalPos[0], w - 1), Math.min(map.goalPos[1], h - 1), Math.min(map.goalPos[2], d - 1)]
+        : [w - 1, 0, d - 1];
+
+      // Rebuild env
+      env.width = w;
+      env.height = h;
+      env.depth = d;
+      env.totalCells = w * h * d;
+      env.maxSteps = env.totalCells * 2;
+      env.grid = newGrid;
+      env.agentPos = agentPos;
+      env.goalPos = goalPos;
+      env.stepCount = 0;
+      env.done = false;
+      env.reward = 0;
+      env.visitedMask = [];
+      for (let x = 0; x < w; x++) {
+        const yz: boolean[][] = [];
+        for (let y = 0; y < h; y++) yz.push(Array(d).fill(false));
+        env.visitedMask.push(yz);
+      }
+      env.updateVisitedMask();
+
+      // Mark agent and goal in grid
+      env.grid[agentPos[0]][agentPos[1]][agentPos[2]] = CellType.AGENT;
+      env.grid[goalPos[0]][goalPos[1]][goalPos[2]] = CellType.GOAL;
+
+      // Update config
+      const cfg = { ...get().config, width: w, height: h, depth: d };
+      set({ config: cfg, state: env.getState(), message: `Map loaded: ${w}×${h}×${d}, ${map.obstacles?.length || 0} obstacles` });
+    } catch (e: any) {
+      set({ message: `Import error: ${e.message}` });
+    }
   },
 }));
