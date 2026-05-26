@@ -1,4 +1,3 @@
-import { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 import { useStore } from '../store';
 
@@ -6,22 +5,6 @@ export default function Grid() {
   const w = useStore((s) => s.state.width);
   const h = useStore((s) => s.state.height);
   const d = useStore((s) => s.state.depth);
-
-  const linesRef = useRef<THREE.LineSegments>(null);
-
-  useEffect(() => {
-    if (!linesRef.current) return;
-    const pts: number[] = [];
-    for (let r = 0; r <= d; r++) {
-      pts.push(-0.5, 0, r - 0.5, w - 0.5, 0, r - 0.5);
-    }
-    for (let c = 0; c <= w; c++) {
-      pts.push(c - 0.5, 0, -0.5, c - 0.5, 0, d - 0.5);
-    }
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
-    linesRef.current.geometry = geo;
-  }, [w, d]);
 
   // Corner pillars
   const pillars: [number, number, number][] = [];
@@ -41,11 +24,6 @@ export default function Grid() {
         <meshStandardMaterial color="#161b22" />
       </mesh>
 
-      {/* Ground grid lines */}
-      <lineSegments ref={linesRef}>
-        <lineBasicMaterial color="#30363d" transparent opacity={0.5} />
-      </lineSegments>
-
       {/* Corner pillars */}
       {pillars.map((pos, i) => (
         <mesh key={i} position={pos}>
@@ -61,7 +39,7 @@ export default function Grid() {
           <meshBasicMaterial
             color="#30363d"
             transparent
-            opacity={0.05}
+            opacity={0.04}
             depthWrite={false}
             side={THREE.DoubleSide}
           />
