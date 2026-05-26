@@ -9,6 +9,7 @@ import Goal from './components/Goal';
 import Obstacles from './components/Obstacles';
 import DynamicObstacle from './components/DynamicObstacle';
 import EditorOverlay from './components/EditorOverlay';
+import Cursor from './components/Cursor';
 import ControlPanel from './panels/ControlPanel';
 import StatusPanel from './panels/StatusPanel';
 import LegendPanel from './panels/LegendPanel';
@@ -68,6 +69,7 @@ export default function App() {
         <Goal />
         <DynamicObstacle />
         <EditorOverlay />
+        <Cursor />
         <OrbitControls
           enableDamping
           dampingFactor={0.1}

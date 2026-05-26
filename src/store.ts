@@ -24,9 +24,9 @@ interface AppState {
   // Editor
   editMode: boolean;
   setEditMode: (b: boolean) => void;
-  editLayer: number;
-  setEditLayer: (n: number) => void;
-  toggleCell: (x: number, y: number, z: number) => void;
+  cursor: Pos3;
+  moveCursor: (dx: number, dy: number, dz: number) => void;
+  toggleCursorCell: () => void;
   clearAll: () => void;
   randomFill: () => void;
   applyMap: () => void;  // apply edited map to env and reset
@@ -89,28 +89,37 @@ export const useStore = create<AppState>((set, get) => ({
 
   // Editor state
   editMode: false,
+  cursor: [0, 0, 0] as Pos3,
   setEditMode: (b) => {
     set({ editMode: b });
     if (b) {
-      // Initialize edit grid from current env
       const eg = cloneGrid(env.grid);
-      set({ editGrid: eg, editLayer: Math.min(env.agentPos[1], env.height - 1) });
+      const cx = Math.min(Math.floor(env.width / 2), env.width - 1);
+      const cy = Math.min(Math.floor(env.height / 2), env.height - 1);
+      const cz = Math.min(Math.floor(env.depth / 2), env.depth - 1);
+      set({ editGrid: eg, cursor: [cx, cy, cz] });
     }
   },
-  editLayer: 0,
-  setEditLayer: (n) => set({ editLayer: n }),
-
-  toggleCell: (x, y, z) => {
+  moveCursor: (dx, dy, dz) => {
+    const cur = get().cursor;
+    const w = get().env.width;
+    const h = get().env.height;
+    const d = get().env.depth;
+    const nx = Math.max(0, Math.min(w - 1, cur[0] + dx));
+    const ny = Math.max(0, Math.min(h - 1, cur[1] + dy));
+    const nz = Math.max(0, Math.min(d - 1, cur[2] + dz));
+    set({ cursor: [nx, ny, nz] });
+  },
+  toggleCursorCell: () => {
+    const cur = get().cursor;
     const eg = get().editGrid;
-    if (!eg || x < 0 || x >= eg.length || y < 0 || y >= eg[0].length || z < 0 || z >= eg[0][0].length) return;
-    const current = eg[x][y][z];
-    // Don't allow editing agent or goal positions
+    if (!eg) return;
+    const [cx, cy, cz] = cur;
     const ap = env.agentPos;
     const gp = env.goalPos;
-    if ((x === ap[0] && y === ap[1] && z === ap[2]) ||
-        (x === gp[0] && y === gp[1] && z === gp[2])) return;
-
-    eg[x][y][z] = current === CellType.OBSTACLE ? CellType.EMPTY : CellType.OBSTACLE;
+    if ((cx === ap[0] && cy === ap[1] && cz === ap[2]) ||
+        (cx === gp[0] && cy === gp[1] && cz === gp[2])) return;
+    eg[cx][cy][cz] = eg[cx][cy][cz] === CellType.OBSTACLE ? CellType.EMPTY : CellType.OBSTACLE;
     set({ editGrid: cloneGrid(eg) });
   },
 
