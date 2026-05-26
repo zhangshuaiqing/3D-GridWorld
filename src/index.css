@@ -13,6 +13,31 @@ html, body, #root {
   -webkit-font-smoothing: antialiased;
 }
 
+/* WebGL fallback message */
+.webgl-fallback {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #8b949e;
+  z-index: 100;
+  max-width: 400px;
+  padding: 24px;
+}
+
+.webgl-fallback h2 {
+  color: #c9d1d9;
+  margin-bottom: 12px;
+  font-size: 18px;
+}
+
+.webgl-fallback p {
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
 /* Range inputs */
 input[type="range"] {
   -webkit-appearance: none;

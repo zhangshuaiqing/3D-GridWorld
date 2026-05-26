@@ -1,5 +1,6 @@
+import { useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Stats } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 import { Leva, useControls } from 'leva';
 import { useStore } from './store';
 import Grid from './components/Grid';
@@ -11,6 +12,34 @@ import StatusPanel from './panels/StatusPanel';
 import LegendPanel from './panels/LegendPanel';
 import SettingsPanel from './panels/SettingsPanel';
 import type { ObservationMode } from './types';
+
+function WebGLCheck() {
+  const [supported, setSupported] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const canvas = document.createElement('canvas');
+    const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+    setSupported(!!gl);
+  }, []);
+
+  if (supported === false) {
+    return (
+      <div className="webgl-fallback">
+        <h2>⚠️ WebGL 不可用</h2>
+        <p>您的浏览器不支持 WebGL，无法渲染 3D 场景。</p>
+        <p>请尝试：</p>
+        <p>1. 更新浏览器到最新版本（Chrome / Firefox / Edge）</p>
+        <p>2. 在浏览器设置中启用「硬件加速」</p>
+        <p>3. 更新显卡驱动</p>
+        <p style={{ marginTop: 16, fontSize: 12, color: '#484f58' }}>
+          如果使用的是远程服务器/虚拟机，请在本机浏览器中打开此页面
+        </p>
+      </div>
+    );
+  }
+
+  return null;
+}
 
 export default function App() {
   const config = useStore((s) => s.config);
@@ -28,11 +57,28 @@ export default function App() {
 
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden', background: '#0d1117' }}>
-      {/* 3D Scene */}
+      <WebGLCheck />
+
       <Canvas
         camera={{ position: [10, 10, 10], fov: 50 }}
-        gl={{ antialias: true }}
+        gl={{
+          antialias: true,
+          powerPreference: "default",
+          failIfMajorPerformanceCaveat: false,
+          premultipliedAlpha: false,
+          alpha: false,
+        }}
+        onCreated={({ gl }) => {
+          gl.setClearColor('#0d1117');
+        }}
         style={{ width: '100%', height: '100%' }}
+        fallback={
+          <div className="webgl-fallback">
+            <h2>⚠️ WebGL 初始化失败</h2>
+            <p>无法创建 3D 渲染上下文。</p>
+            <p>请使用支持 WebGL 的浏览器打开此页面。</p>
+          </div>
+        }
       >
         <ambientLight intensity={0.5} />
         <directionalLight position={[10, 15, 10]} intensity={1} />
@@ -48,7 +94,6 @@ export default function App() {
           maxDistance={30}
           maxPolarAngle={Math.PI / 2.1}
         />
-        <Stats />
       </Canvas>
 
       {/* UI Panels */}
