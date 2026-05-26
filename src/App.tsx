@@ -47,6 +47,7 @@ export default function App() {
     depth: { value: config.depth, min: 3, max: 10, step: 1, onChange: (v: number) => useStore.getState().setDepth(v) },
     obstacles: { value: config.obstacleRatio, min: 0, max: 0.4, step: 0.05, onChange: (v: number) => useStore.getState().setObstacleRatio(v) },
     mode: { value: config.observationMode, options: ['full', 'fog_of_war'] as ObservationMode[], onChange: (v: ObservationMode) => useStore.getState().setObservationMode(v) },
+    dynObs: { value: config.numDynamicObstacles, min: 0, max: 8, step: 1, onChange: (v: number) => useStore.getState().setNumDynamicObstacles(v) },
   });
 
   return (

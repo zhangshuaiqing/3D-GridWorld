@@ -14,6 +14,8 @@ export default function SettingsPanel() {
   const setRandomStartGoal = useStore((s) => s.setRandomStartGoal);
   const setObservationMode = useStore((s) => s.setObservationMode);
   const setViewRange = useStore((s) => s.setViewRange);
+  const setNumDynamicObstacles = useStore((s) => s.setNumDynamicObstacles);
+  const setDynamicObstacleSpeed = useStore((s) => s.setDynamicObstacleSpeed);
 
   return (
     <div style={{
@@ -78,6 +80,22 @@ export default function SettingsPanel() {
         <option value="full">Full</option>
         <option value="fog_of_war">Fog</option>
       </select>
+
+      <div style={{ width: 1, height: 24, background: '#30363d' }} />
+
+      <label style={labelStyle}>
+        <span style={{ color: '#f85149' }}>Dyn</span>
+        <input type="range" min={0} max={8} value={config.numDynamicObstacles}
+          onChange={(e) => setNumDynamicObstacles(Number(e.target.value))} style={rangeStyle} />
+        <span style={{ minWidth: 14, textAlign: 'right', color: '#f85149' }}>{config.numDynamicObstacles}</span>
+      </label>
+
+      <label style={labelStyle}>
+        <span>Spd</span>
+        <input type="range" min={1} max={5} value={config.dynamicObstacleSpeed}
+          onChange={(e) => setDynamicObstacleSpeed(Number(e.target.value))} style={rangeStyle} />
+        <span style={{ minWidth: 14, textAlign: 'right' }}>{config.dynamicObstacleSpeed}</span>
+      </label>
     </div>
   );
 }

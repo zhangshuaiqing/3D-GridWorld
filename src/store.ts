@@ -14,6 +14,8 @@ interface AppState {
   setRandomStartGoal: (b: boolean) => void;
   setObservationMode: (m: ObservationMode) => void;
   setViewRange: (n: number) => void;
+  setNumDynamicObstacles: (n: number) => void;
+  setDynamicObstacleSpeed: (n: number) => void;
 
   env: GridWorld3D;
   state: GridWorldState;
@@ -66,6 +68,16 @@ export const useStore = create<AppState>((set, get) => ({
     set((s) => ({ config: { ...s.config, viewRange: n } }));
     env.viewRange = n;
     set({ state: env.getState() });
+  },
+  setNumDynamicObstacles: (n) => {
+    set((s) => ({ config: { ...s.config, numDynamicObstacles: n } }));
+    env.numDynamicObstacles = n;
+    const st = env.reset();
+    set({ state: st });
+  },
+  setDynamicObstacleSpeed: (n) => {
+    set((s) => ({ config: { ...s.config, dynamicObstacleSpeed: n } }));
+    env.dynamicObstacleSpeed = n;
   },
 
   env,
