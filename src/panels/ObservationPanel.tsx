@@ -26,7 +26,6 @@ export default function ObservationPanel() {
     canvas.width = canvasSize;
     canvas.height = canvasSize;
 
-    // Background
     ctx.fillStyle = '#161b22';
     ctx.fillRect(0, 0, canvasSize, canvasSize);
 
@@ -45,7 +44,6 @@ export default function ObservationPanel() {
           visible = r >= 0 && r < grid.length && c >= 0 && c < grid[0].length && visited[r]?.[c] === true;
         }
 
-        // Draw cell
         const outOfBounds = r < 0 || r >= grid.length || c < 0 || c >= grid[0].length;
 
         if (outOfBounds) {
@@ -56,8 +54,6 @@ export default function ObservationPanel() {
           ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
         } else {
           const cellType = grid[r][c];
-
-          // Base color by cell type
           switch (cellType) {
             case CellType.EMPTY:
               ctx.fillStyle = '#1c2128';
@@ -75,17 +71,6 @@ export default function ObservationPanel() {
               ctx.fillStyle = '#1c2128';
           }
           ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
-
-          // Visited trail — mark cells that were visited before
-          if (visited[r]?.[c] && cellType !== CellType.AGENT && cellType !== CellType.GOAL) {
-            ctx.fillStyle = 'rgba(88, 166, 255, 0.15)';
-            ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
-            // Small dot in corner
-            ctx.fillStyle = 'rgba(88, 166, 255, 0.4)';
-            ctx.beginPath();
-            ctx.arc(x + 4, y + CELL_SIZE - 4, 2.5, 0, Math.PI * 2);
-            ctx.fill();
-          }
         }
 
         // Grid lines
@@ -93,14 +78,13 @@ export default function ObservationPanel() {
         ctx.lineWidth = 0.5;
         ctx.strokeRect(x, y, CELL_SIZE, CELL_SIZE);
 
-        // Agent (center cell) — draw last so it's on top
+        // Agent (center cell)
         if (dr === 0 && dc === 0 && !outOfBounds) {
           ctx.fillStyle = CELL_COLORS[CellType.AGENT];
           ctx.beginPath();
           ctx.arc(x + CELL_SIZE / 2, y + CELL_SIZE / 2, CELL_SIZE / 4, 0, Math.PI * 2);
           ctx.fill();
 
-          // Agent glow
           ctx.fillStyle = 'rgba(88, 166, 255, 0.2)';
           ctx.beginPath();
           ctx.arc(x + CELL_SIZE / 2, y + CELL_SIZE / 2, CELL_SIZE / 2.5, 0, Math.PI * 2);
