@@ -314,4 +314,12 @@ export const useStore = create<AppState>((set, get) => ({
       set({ message: `Import error: ${e.message}` });
     }
   },
+  setDynObsProp: (index: number, prop: string, value: any) => {
+    const dyns = env.dynamicObstacles;
+    if (index < 0 || index >= dyns.length) return;
+    if (prop === 'mode') dyns[index].mode = value;
+    else if (prop === 'speed') dyns[index].speed = Math.max(1, Math.min(5, value));
+    else if (prop === 'dir') dyns[index].dir = value;
+    set({ state: env.getState() });
+  },
 }));
