@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import * as THREE from 'three';
 import { useStore } from '../store';
 
@@ -6,15 +7,38 @@ export default function Grid() {
   const h = useStore((s) => s.state.height);
   const d = useStore((s) => s.state.depth);
 
-  // Corner pillars
-  const pillars: [number, number, number][] = [];
-  for (let x = 0; x <= w; x++) {
-    for (let z = 0; z <= d; z++) {
-      if (x === 0 || x === w || z === 0 || z === d) {
-        pillars.push([x - 0.5, 0.5, z - 0.5]);
+  // Build boundary box geometry: 4 lines around the perimeter at y=0
+  const borderGeo = useMemo(() => {
+    const pts: number[] = [];
+    const y = 0;
+    const x0 = -0.5;
+    const x1 = w - 0.5;
+    const z0 = -0.5;
+    const z1 = d - 0.5;
+
+    // 4 edges at y=0
+    pts.push(x0, y, z0, x1, y, z0);  // front edge (z=z0)
+    pts.push(x1, y, z0, x1, y, z1);  // right edge (x=x1)
+    pts.push(x1, y, z1, x0, y, z1);  // back edge (z=z1)
+    pts.push(x0, y, z1, x0, y, z0);  // left edge (x=x0)
+
+    // Vertical lines at each corner (from y=0 to y=h)
+    for (const x of [x0, x1]) {
+      for (const z of [z0, z1]) {
+        pts.push(x, 0, z, x, h, z);
       }
     }
-  }
+
+    // Top edge at y=h (same as bottom)
+    pts.push(x0, h, z0, x1, h, z0);
+    pts.push(x1, h, z0, x1, h, z1);
+    pts.push(x1, h, z1, x0, h, z1);
+    pts.push(x0, h, z1, x0, h, z0);
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+    return geo;
+  }, [w, h, d]);
 
   return (
     <group>
@@ -24,13 +48,10 @@ export default function Grid() {
         <meshStandardMaterial color="#161b22" />
       </mesh>
 
-      {/* Corner pillars */}
-      {pillars.map((pos, i) => (
-        <mesh key={i} position={pos}>
-          <cylinderGeometry args={[0.03, 0.03, h, 4]} />
-          <meshBasicMaterial color="#30363d" transparent opacity={0.3} />
-        </mesh>
-      ))}
+      {/* Outer boundary box */}
+      <lineSegments geometry={borderGeo}>
+        <lineBasicMaterial color="#8b949e" transparent opacity={0.25} />
+      </lineSegments>
 
       {/* Height level indicators */}
       {Array.from({ length: h + 1 }, (_, y) => (
