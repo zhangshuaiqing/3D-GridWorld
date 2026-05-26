@@ -91,8 +91,10 @@ export function gridworldWS(): Plugin {
     },
 
     transformIndexHtml() {
-      return [
-        {
+      // Only inject bridge script in dev mode (WebSocket server not available on Pages)
+      if (process.env.NODE_ENV !== 'production') {
+        return [
+          {
           tag: 'script',
           attrs: { type: 'module' },
           children: `
@@ -156,6 +158,8 @@ export function gridworldWS(): Plugin {
 `,
         },
       ];
+      }
+      return [];
     },
   };
 }
