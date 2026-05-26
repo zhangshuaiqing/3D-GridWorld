@@ -10,8 +10,9 @@
 - **交互控制**：6 方向键盘控制 Agent 移动
 - **三视图小地图**：俯视 + 前视 + 侧视辅助导航
 - **观测模式**：full / fog_of_war
-- **地图编辑器**：直观的 3D 点击编辑
-- **RL 接口**（待实现）：`window.__gridworld` 对接训练
+- **地图编辑器**：键盘游标编辑 + 文件导入/导出
+- **动态障碍物**：bounce/random 双模式
+- **RL 接口**：`window.__gridworld` 对接训练
 
 ## 技术选型
 
@@ -29,7 +30,7 @@
 3D-GridWorld/
 ├── index.html
 ├── src/
-│   ├── main.tsx               # 入口
+│   ├── main.tsx               # 入口 + window.__gridworld 挂载
 │   ├── App.tsx                # 主组件
 │   ├── store.ts               # zustand 全局状态
 │   ├── types.ts               # 类型定义
@@ -37,19 +38,23 @@
 │   ├── logic/
 │   │   └── gridworld.ts       # GridWorld3D 核心逻辑
 │   ├── components/
-│   │   ├── Grid.tsx           # 地面网格 + 高度指示
+│   │   ├── Grid.tsx           # 地面网格 + 外框 + 坐标轴
 │   │   ├── Agent.tsx          # Agent 球体
 │   │   ├── Goal.tsx           # 目标光柱
-│   │   ├── Obstacles.tsx      # 障碍物渲染
-│   │   ├── DynamicObstacle.tsx # 动态障碍物（预留）
-│   │   └── EditorOverlay.tsx  # 编辑器交互层
-│   └── panels/
-│       ├── ControlPanel.tsx   # 操作按钮
-│       ├── StatusPanel.tsx    # 状态信息
-│       ├── LegendPanel.tsx    # 图例
-│       ├── SettingsPanel.tsx  # 参数设置
-│       ├── ObservationPanel.tsx # 三视图小地图
-│       └── EditorPanel.tsx    # 编辑器工具栏
+│   │   ├── Obstacles.tsx      # 静态障碍物 + 边框线
+│   │   ├── DynamicObstacle.tsx # 动态障碍物 + 方向箭头
+│   │   ├── EditorOverlay.tsx  # 编辑器视觉层
+│   │   └── Cursor.tsx         # 编辑器游标
+│   ├── panels/
+│   │   ├── ControlPanel.tsx   # 操作按钮（Agent/游标双模式）
+│   │   ├── StatusPanel.tsx    # 状态信息
+│   │   ├── LegendPanel.tsx    # 图例
+│   │   ├── SettingsPanel.tsx  # 参数设置（含动态障碍物）
+│   │   ├── ObservationPanel.tsx # 三视图小地图
+│   │   ├── EditorPanel.tsx    # 编辑器工具栏
+│   │   └── DynObsPanel.tsx    # 动态障碍物独立控制
+│   └── rl/
+│       └── interface.ts       # RL 接口实现
 ├── DEVELOPMENT_PLAN.md
 └── README.md
 ```
@@ -62,15 +67,17 @@
 - [x] 碰撞检测 + 奖励系统
 - [x] 随机/固定起点终点
 - [x] 状态面板 + 图例面板
-- [x] 参数设置面板
+- [x] 参数设置面板（含动态障碍物）
 - [x] 三视图小地图（TOP/FRONT/SIDE）
 - [x] full / fog_of_war 观测模式
-- [x] 地图编辑器（点击编辑 + Y 层切换）
+- [x] 地图编辑器（键盘游标 + 文件导入导出）
+- [x] 3D 外框 + 坐标轴标注
+- [x] 动态障碍物（bounce/random + 独立控制）
+- [x] RL 接口 window.__gridworld（完整 API + 事件系统）
+- [x] 局域网访问（vite --host）
 
 ## 待实现功能
 
-- [ ] 动态障碍物
-- [ ] RL 接口 window.__gridworld
 - [ ] Vitest 单元测试
 - [ ] GitHub Pages 部署
 
@@ -82,6 +89,6 @@
 - [x] 状态面板实时更新
 - [x] 三视图小地图正确显示
 - [x] 观测模式工作正常
-- [ ] 动态障碍物展示正确
-- [ ] RL 接口可用
-- [ ] 地图编辑器可用
+- [x] 动态障碍物展示正确
+- [x] RL 接口可用
+- [x] 地图编辑器可用
