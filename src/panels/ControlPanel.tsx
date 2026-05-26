@@ -7,9 +7,7 @@ const KEY_MAP: Record<string, 0 | 1 | 2 | 3 | 4 | 5> = {
   ArrowLeft: 1, a: 1, A: 1,
   ArrowUp: 4, w: 4, W: 4,
   ArrowDown: 5, s: 5, S: 5,
-  // Up/Down height: q=up, e=down
   q: 2, Q: 2, e: 3, E: 3,
-  // Shift/Ctrl for height also works
 };
 
 export default function ControlPanel() {
@@ -47,7 +45,6 @@ export default function ControlPanel() {
       timerRef.current = setInterval(() => {
         const st = useStore.getState();
         if (st.state.done) { st.setAutoRun(false); return; }
-        // Simple: move forward (+z)
         st.step(4);
       }, autoSpeed);
       return () => { if (timerRef.current) clearInterval(timerRef.current); };
@@ -57,9 +54,9 @@ export default function ControlPanel() {
   }, [autoRun, state.done, autoSpeed]);
 
   const btn: React.CSSProperties = {
-    padding: '5px 10px', border: '1px solid #30363d', borderRadius: 6,
+    padding: '4px 8px', border: '1px solid #30363d', borderRadius: 5,
     background: '#21262d', color: '#c9d1d9', cursor: 'pointer',
-    fontSize: 11, fontWeight: 600, fontFamily: 'monospace',
+    fontSize: 11, fontWeight: 600, fontFamily: 'monospace', minWidth: 32,
   };
 
   const doStep = (a: 0 | 1 | 2 | 3 | 4 | 5) => {
@@ -68,44 +65,55 @@ export default function ControlPanel() {
   };
 
   return (
-    <>
+    <div style={{
+      position: 'absolute', bottom: 20, left: '50%',
+      transform: 'translateX(-50%)', zIndex: 10,
+      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+    }}>
+      {/* All movement buttons in one row */}
       <div style={{
-        position: 'absolute', bottom: 20, left: '50%',
-        transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column',
-        alignItems: 'center', gap: 6, zIndex: 10,
+        display: 'flex', gap: 6, alignItems: 'center',
+        padding: '6px 12px', background: 'rgba(22, 27, 34, 0.9)',
+        borderRadius: 8, border: '1px solid #30363d',
+        backdropFilter: 'blur(8px)',
       }}>
-        <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-          <span style={{ color: '#484f58', fontSize: 10 }}>Q↑</span>
-          <button style={btn} onClick={() => doStep(2)}>▲ Up</button>
-          <span style={{ color: '#484f58', fontSize: 10 }}>E↓</span>
-          <button style={btn} onClick={() => doStep(3)}>▼ Down</button>
-          <span style={{ color: '#30363d' }}>|</span>
-          <button style={{ ...btn, background: '#238636', color: '#fff', marginLeft: 4 }}
-            onClick={() => useStore.getState().reset()}>
-            🔄 Reset
-          </button>
-          <button style={{ ...btn, background: autoRun ? '#f85149' : '#238636', color: '#fff' }}
-            onClick={() => setAutoRun(!autoRun)}>
-            {autoRun ? '⏹ Stop' : '▶ Auto'}
-          </button>
-          <input type="range" min={100} max={1000} step={50} value={autoSpeed}
-            onChange={(e) => setAutoSpeed(Number(e.target.value))}
-            style={{ width: 50 }} />
-        </div>
-        <div style={{ display: 'flex', gap: 4 }}>
-          <button style={btn} onClick={() => doStep(1)}>← -X</button>
-          <button style={btn} onClick={() => doStep(4)}>↑ +Z</button>
-          <button style={btn} onClick={() => doStep(0)}>→ +X</button>
-          <button style={btn} onClick={() => doStep(5)}>↓ -Z</button>
-        </div>
-        {message && <div style={{ color: '#d29922', fontSize: 13, fontWeight: 600 }}>{message}</div>}
+        {/* X-axis */}
+        <span style={{ color: '#8b949e', fontSize: 10, marginRight: 2 }}>X</span>
+        <button style={btn} onClick={() => doStep(1)} title="A / ←">-X</button>
+        <button style={btn} onClick={() => doStep(0)} title="D / →">+X</button>
+
+        <div style={{ width: 1, height: 20, background: '#30363d' }} />
+
+        {/* Z-axis */}
+        <span style={{ color: '#8b949e', fontSize: 10, marginRight: 2 }}>Z</span>
+        <button style={btn} onClick={() => doStep(5)} title="S / ↓">-Z</button>
+        <button style={btn} onClick={() => doStep(4)} title="W / ↑">+Z</button>
+
+        <div style={{ width: 1, height: 20, background: '#30363d' }} />
+
+        {/* Y-axis */}
+        <span style={{ color: '#8b949e', fontSize: 10, marginRight: 2 }}>Y</span>
+        <button style={btn} onClick={() => doStep(3)} title="E">▼</button>
+        <button style={btn} onClick={() => doStep(2)} title="Q">▲</button>
+
+        <div style={{ width: 1, height: 20, background: '#30363d' }} />
+
+        <button style={{ ...btn, background: '#238636', color: '#fff' }}
+          onClick={() => useStore.getState().reset()}>
+          🔄
+        </button>
+        <button style={{ ...btn, background: autoRun ? '#f85149' : '#238636', color: '#fff' }}
+          onClick={() => setAutoRun(!autoRun)}>
+          {autoRun ? '⏹' : '▶'}
+        </button>
+        <input type="range" min={100} max={1000} step={50} value={autoSpeed}
+          onChange={(e) => setAutoSpeed(Number(e.target.value))} style={{ width: 40 }} />
+        {message && <span style={{ color: '#d29922', fontSize: 11 }}>{message}</span>}
       </div>
-      <div style={{
-        position: 'absolute', bottom: 100, left: '50%', transform: 'translateX(-50%)',
-        color: '#484f58', fontSize: 10, zIndex: 10, textAlign: 'center', pointerEvents: 'none',
-      }}>
-        WASD: XZ plane · Q/E: up/down · Space: auto · R: reset
+
+      <div style={{ color: '#484f58', fontSize: 9 }}>
+        WASD/Arrows · Q/E: up/down · Space: auto · R: reset
       </div>
-    </>
+    </div>
   );
 }
