@@ -1,8 +1,9 @@
 // 3D GridWorld — zustand Global Store
 
 import { create } from 'zustand';
-import type { GridWorldConfig, ObservationMode, Pos } from './types';
+import type { GridWorldConfig, ObservationMode, GridWorldState } from './types';
 import { DEFAULT_CONFIG } from './types';
+import { GridWorld } from './logic/gridworld';
 
 interface AppState {
   // Config
@@ -14,44 +15,70 @@ interface AppState {
   setViewRange: (n: number) => void;
   setNumDynamicObstacles: (n: number) => void;
 
-  // Runtime
-  stepCount: number;
-  agentPos: Pos;
-  goalPos: Pos;
-  reward: number;
-  done: boolean;
-  setRuntime: (data: { stepCount: number; agentPos: Pos; goalPos: Pos; reward: number; done: boolean }) => void;
-  resetRuntime: () => void;
+  // Environment
+  env: GridWorld;
+  state: GridWorldState;
+
+  // Actions
+  step: (action: 0 | 1 | 2 | 3) => void;
+  reset: () => void;
 
   // UI
   autoRun: boolean;
   autoSpeed: number;
   setAutoRun: (b: boolean) => void;
   setAutoSpeed: (n: number) => void;
+  message: string;
+  setMessage: (msg: string) => void;
 }
 
-export const useStore = create<AppState>((set) => ({
-  // Config defaults
+const env = new GridWorld(DEFAULT_CONFIG);
+
+export const useStore = create<AppState>((set, get) => ({
+  // Config
   config: { ...DEFAULT_CONFIG },
   setSize: (n) => set((s) => ({ config: { ...s.config, size: n } })),
   setObstacleRatio: (n) => set((s) => ({ config: { ...s.config, obstacleRatio: n } })),
   setRandomStartGoal: (b) => set((s) => ({ config: { ...s.config, randomStartGoal: b } })),
-  setObservationMode: (m) => set((s) => ({ config: { ...s.config, observationMode: m } })),
-  setViewRange: (n) => set((s) => ({ config: { ...s.config, viewRange: n } })),
+  setObservationMode: (m) => {
+    set((s) => ({ config: { ...s.config, observationMode: m } }));
+    env.observationMode = m;
+    set({ state: env.getState() });
+  },
+  setViewRange: (n) => {
+    set((s) => ({ config: { ...s.config, viewRange: n } }));
+    env.viewRange = n;
+    set({ state: env.getState() });
+  },
   setNumDynamicObstacles: (n) => set((s) => ({ config: { ...s.config, numDynamicObstacles: n } })),
 
-  // Runtime
-  stepCount: 0,
-  agentPos: [0, 0] as Pos,
-  goalPos: [7, 7] as Pos,
-  reward: 0,
-  done: false,
-  setRuntime: (data) => set(data),
-  resetRuntime: () => set({ stepCount: 0, reward: 0, done: false }),
+  // Environment
+  env,
+  state: env.getState(),
+
+  // Actions
+  step: (action) => {
+    const s = env.step(action);
+    set({ state: s });
+  },
+  reset: () => {
+    const cfg = get().config;
+    const s = env.reset({
+      size: cfg.size,
+      obstacleRatio: cfg.obstacleRatio,
+      randomStartGoal: cfg.randomStartGoal,
+      observationMode: cfg.observationMode,
+      viewRange: cfg.viewRange,
+      numDynamicObstacles: cfg.numDynamicObstacles,
+    });
+    set({ state: s, message: '' });
+  },
 
   // UI
   autoRun: false,
   autoSpeed: 500,
   setAutoRun: (b) => set({ autoRun: b }),
   setAutoSpeed: (n) => set({ autoSpeed: n }),
+  message: '',
+  setMessage: (msg) => set({ message: msg }),
 }));
