@@ -91,8 +91,8 @@ export function gridworldWS(): Plugin {
     },
 
     transformIndexHtml() {
-      // Only inject bridge script in dev mode (WebSocket server not available on Pages)
-      if (process.env.NODE_ENV !== 'production') {
+      // Only inject bridge script in dev mode (not in production build)
+      if (process.env['NODE_ENV'] !== 'production' && process.env['NODE_ENV'] !== 'test') {
         return [
           {
           tag: 'script',
