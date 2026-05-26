@@ -46,16 +46,18 @@ export default function ObservationPanel() {
         }
 
         // Draw cell
-        if (r < 0 || r >= grid.length || c < 0 || c >= grid[0].length) {
-          // Out of bounds - dark
+        const outOfBounds = r < 0 || r >= grid.length || c < 0 || c >= grid[0].length;
+
+        if (outOfBounds) {
           ctx.fillStyle = '#0d1117';
           ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
         } else if (!visible) {
-          // Fog of war - dark
           ctx.fillStyle = FOG_COLOR;
           ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
         } else {
           const cellType = grid[r][c];
+
+          // Base color by cell type
           switch (cellType) {
             case CellType.EMPTY:
               ctx.fillStyle = '#1c2128';
@@ -73,6 +75,17 @@ export default function ObservationPanel() {
               ctx.fillStyle = '#1c2128';
           }
           ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
+
+          // Visited trail — mark cells that were visited before
+          if (visited[r]?.[c] && cellType !== CellType.AGENT && cellType !== CellType.GOAL) {
+            ctx.fillStyle = 'rgba(88, 166, 255, 0.15)';
+            ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
+            // Small dot in corner
+            ctx.fillStyle = 'rgba(88, 166, 255, 0.4)';
+            ctx.beginPath();
+            ctx.arc(x + 4, y + CELL_SIZE - 4, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+          }
         }
 
         // Grid lines
@@ -80,11 +93,17 @@ export default function ObservationPanel() {
         ctx.lineWidth = 0.5;
         ctx.strokeRect(x, y, CELL_SIZE, CELL_SIZE);
 
-        // Agent (center cell)
-        if (dr === 0 && dc === 0) {
+        // Agent (center cell) — draw last so it's on top
+        if (dr === 0 && dc === 0 && !outOfBounds) {
           ctx.fillStyle = CELL_COLORS[CellType.AGENT];
           ctx.beginPath();
           ctx.arc(x + CELL_SIZE / 2, y + CELL_SIZE / 2, CELL_SIZE / 4, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Agent glow
+          ctx.fillStyle = 'rgba(88, 166, 255, 0.2)';
+          ctx.beginPath();
+          ctx.arc(x + CELL_SIZE / 2, y + CELL_SIZE / 2, CELL_SIZE / 2.5, 0, Math.PI * 2);
           ctx.fill();
         }
       }
