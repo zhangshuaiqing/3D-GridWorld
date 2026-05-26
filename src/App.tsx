@@ -38,6 +38,7 @@ function WebGLCheck() {
 
 export default function App() {
   const config = useStore((s) => s.config);
+  const editMode = useStore((s) => s.editMode);
 
   useControls('GridWorld', {
     width: { value: config.width, min: 3, max: 10, step: 1, onChange: (v: number) => useStore.getState().setWidth(v) },
@@ -62,7 +63,7 @@ export default function App() {
         <directionalLight position={[10, 15, 10]} intensity={1} />
         <directionalLight position={[-5, 8, -5]} intensity={0.3} />
         <Grid />
-        <Obstacles />
+        {!editMode && <Obstacles />}
         <Agent />
         <Goal />
         <DynamicObstacle />
