@@ -8,11 +8,13 @@ import Agent from './components/Agent';
 import Goal from './components/Goal';
 import Obstacles from './components/Obstacles';
 import DynamicObstacle from './components/DynamicObstacle';
+import EditorOverlay from './components/EditorOverlay';
 import ControlPanel from './panels/ControlPanel';
 import StatusPanel from './panels/StatusPanel';
 import LegendPanel from './panels/LegendPanel';
 import SettingsPanel from './panels/SettingsPanel';
 import ObservationPanel from './panels/ObservationPanel';
+import EditorPanel from './panels/EditorPanel';
 import type { ObservationMode } from './types';
 
 function WebGLCheck() {
@@ -64,6 +66,7 @@ export default function App() {
         <Agent />
         <Goal />
         <DynamicObstacle />
+        <EditorOverlay />
         <OrbitControls
           enableDamping
           dampingFactor={0.1}
@@ -76,6 +79,7 @@ export default function App() {
       <ControlPanel />
       <StatusPanel />
       <ObservationPanel />
+      <EditorPanel />
       <LegendPanel />
       <SettingsPanel />
 

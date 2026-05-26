@@ -158,7 +158,7 @@ export class GridWorld3D {
 
     // Init visited
     this.visitedMask = createVisited(this.width, this.height, this.depth);
-    this._updateVisitedMask();
+    this.updateVisitedMask();
   }
 
   private _pickStartGoal() {
@@ -208,7 +208,7 @@ export class GridWorld3D {
     }
   }
 
-  private _updateVisitedMask() {
+  updateVisitedMask() {
     const [ax, ay, az] = this.agentPos;
     const vr = this.viewRange;
     for (let x = Math.max(0, ax - vr); x < Math.min(this.width, ax + vr + 1); x++) {
@@ -278,7 +278,7 @@ export class GridWorld3D {
       }
     }
 
-    this._updateVisitedMask();
+    this.updateVisitedMask();
 
     if (this.stepCount >= this.maxSteps) {
       this.done = true;
@@ -307,7 +307,7 @@ export class GridWorld3D {
     this.grid[this.agentPos[0]][this.agentPos[1]][this.agentPos[2]] = CellType.EMPTY;
     this.agentPos = [x, y, z];
     this.grid[x][y][z] = CellType.AGENT;
-    this._updateVisitedMask();
+    this.updateVisitedMask();
   }
 
   setGoalPos(x: number, y: number, z: number) {
