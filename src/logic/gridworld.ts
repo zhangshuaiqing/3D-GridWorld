@@ -15,8 +15,10 @@ function seededRng(seed?: number) {
     },
     shuffle: <T>(arr: T[]): T[] => {
       const a = [...arr];
+      let r = s;
       for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(s * (i + 1));
+        r = (r * 1103515245 + 12345) & 0x7fffffff;
+        const j = Math.floor((r / 0x7fffffff) * (i + 1));
         [a[i], a[j]] = [a[j], a[i]];
       }
       return a;
