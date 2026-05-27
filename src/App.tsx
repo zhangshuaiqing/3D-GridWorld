@@ -17,7 +17,6 @@ import SettingsPanel from './panels/SettingsPanel';
 import ObservationPanel from './panels/ObservationPanel';
 import EditorPanel from './panels/EditorPanel';
 import DynObsPanel from './panels/DynObsPanel';
-import WelcomeOverlay from './panels/WelcomeOverlay';
 import type { ObservationMode } from './types';
 
 function WebGLCheck() {
@@ -90,7 +89,6 @@ export default function App() {
       <LegendPanel />
       <SettingsPanel />
       <DynObsPanel />
-      <WelcomeOverlay />
 
       <Leva collapsed titleBar={{ title: 'Debug' }} />
     </div>
