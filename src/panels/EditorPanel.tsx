@@ -77,7 +77,7 @@ export default function EditorPanel() {
         <button style={btn} onClick={handleFileImport}>📂 Import Map</button>
         <button style={btn} onClick={handleExport}>💾 Export Map</button>
         <button style={btn} onClick={handleDownloadExample}>📄 Example</button>
-        <button style={btn} onClick={() => window.open('/3D-GridWorld/about.html', '_blank')}>❓ About</button>
+        <button style={btn} onClick={() => window.open('https://github.com/zhangshuaiqing/3D-GridWorld', '_blank')}>❓ About</button>
         <input ref={fileInputRef} type="file" accept=".json" style={{ display: 'none' }} onChange={handleFileChange} />
       </div>
     );
