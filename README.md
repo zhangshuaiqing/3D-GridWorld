@@ -17,6 +17,8 @@ npm run build
 
 浏览器打开 `http://localhost:5173`。同一局域网其他设备用 `http://<你的IP>:5173` 访问。
 
+![3D GridWorld 运行界面](docs/assets/screenshot.png)
+
 ## 技术栈
 
 | 层 | 工具 |
